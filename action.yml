@@ -1,7 +1,6 @@
 name: Set up Tey
 description: >-
-  Installs Tey and a Kex toolchain from the published release archives, puts
-  them on PATH, and caches both the toolchain and the package cache.
+  Installs Tey and a Kex toolchain from the published release archives
 
 # Why this exists, and why it does not use Homebrew:
 #
