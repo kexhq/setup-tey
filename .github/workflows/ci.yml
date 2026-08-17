@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ["**"]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # A package WITH a dependency is the case that matters. `tey install` only
+  # reaches Digest.sha256 -> crypto:hash/2 when there is something to verify,
+  # so a dependency-free package cannot catch a missing crypto application.
+  # kexhq/greeter depends on kexhq/greet; kexhq/greet depends on nothing.
+  # Both, so neither path rots unnoticed.
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        package: [greeter, greet]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: action
+
+      - uses: actions/checkout@v4
+        with:
+          repository: kexhq/${{ matrix.package }}
+          path: package
+
+      - uses: ./action
+        id: setup
+
+      - name: Report what was installed
+        run: |
+          echo "Kex ${{ steps.setup.outputs.kex-version }}"
+          echo "Tey ${{ steps.setup.outputs.tey-version }}"
+          echo "cache hit: ${{ steps.setup.outputs.cache-hit }}"
+
+      - name: Erlang has crypto
+        shell: bash
+        run: erl -noshell -eval 'ok = crypto:start(), io:format("crypto ok~n"), halt().'
+
+      - run: tey install
+        working-directory: package
+
+      - run: tey build
+        working-directory: package
+
+      - run: tey test
+        working-directory: package
+
+  # The action must also honour an explicitly pinned version, not just latest.
+  pinned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        id: setup
+        with:
+          kex-version: "0.3.4"
+      - name: The pinned version is what got installed
+        run: |
+          test "${{ steps.setup.outputs.kex-version }}" = "0.3.4"
+          tey --version
