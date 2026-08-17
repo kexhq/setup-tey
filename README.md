@@ -48,7 +48,7 @@ verifies the checksum and stages the compiler properly. This action does that.
 
 | Input | Default | Meaning |
 | --- | --- | --- |
-| `kex-version` | `latest` | `0.4.0`, or `latest` for the newest stable release |
+| `kex-version` | `latest` | `0.3.4`, or `latest` for the newest stable release |
 | `cache` | `true` | Cache the toolchain and the package cache between runs |
 | `erlang` | `true` | Install Erlang/OTP; turn off if the image already has it |
 | `repository` | `kexhq/kex` | Where releases are published, for forks and mirrors |
@@ -103,7 +103,7 @@ Those all take an image plus a script, so the published container is the answer
 there rather than a per-platform config to keep in step:
 
 ```yaml
-image: ghcr.io/kexhq/kex:0.3.5
+image: ghcr.io/kexhq/kex:0.3.4
 script:
   - tey install && tey build && tey test
 ```

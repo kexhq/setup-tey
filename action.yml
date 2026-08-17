@@ -28,7 +28,7 @@ branding:
 inputs:
   kex-version:
     description: >-
-      The Kex version to install: a version like `0.4.0`, or `latest` for the
+      The Kex version to install: a version like `0.3.4`, or `latest` for the
       newest stable release.
     required: false
     default: latest
